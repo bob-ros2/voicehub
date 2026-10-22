@@ -1,0 +1,12 @@
+# local secrets — never commit
+.env
+.env.local
+
+# runtime artifacts
+*.log
+__pycache__/
+*.pyc
+
+# tool caches
+.pytest_cache/
+.ruff_cache/

@@ -1,0 +1,34 @@
+name: voicehub-vox
+
+# Only the vox image + generic handler — knows just VOICEHUB_URL and
+# VOICEHUB_TOKEN, so the STT side can be detached at any time and run on
+# any host with a microphone.
+#
+# restart: "no" is intentional: with a restart policy
+# dockerd starts before logind at boot; the Pulse socket bind source is then
+# missing and dockerd creates it root-owned -> broken runtime dir, user@1000 dies.
+# The ${VOICEHUB_MODELS_DIR} mount below is substituted from the environment —
+# run with `docker compose --env-file ../.env -f vox/docker-compose.yml up -d`.
+services:
+  voicehub-vox:
+    image: ghcr.io/bob-ros2/vox/vox-real:latest
+    container_name: voicehub-vox
+    restart: "no"
+    network_mode: host
+    env_file:
+      - ../.env
+    environment:
+      - VOX_MODEL=medium
+      - VOX_LANG=de
+      - VOX_THRESHOLD=1500
+    volumes:
+      - /blue/dev/vagent/models:/models:ro
+      - ./voicehub_handler.py:/app/voicehub_handler.py:ro
+      - ./stt.log:/tmp/stt_out.log
+      - /run/user/1000/pulse/native:/run/pulse/native
+      - /etc/machine-id:/etc/machine-id:ro
+    devices:
+      - /dev/snd:/dev/snd
+    command: >
+      vox --model-dir /models --model medium --lang de --threshold 1500
+      --custom-handler /app/voicehub_handler.py

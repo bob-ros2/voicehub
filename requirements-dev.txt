@@ -1,0 +1,5 @@
+# Development tools (the hub runtime itself only needs aiohttp; production
+# runs in the container from hub/Dockerfile).
+aiohttp
+pytest
+ruff

@@ -1,0 +1,17 @@
+name: voicehub-edge
+
+# OPTIONAL split-host mode: only needed if the hub does NOT run on the
+# TTS host (then set VOICEHUB_ROS_TTS=0 in the hub). Default setup:
+# hub with integrated ROS mode, this container does not run.
+# host network + ipc + UID 1000 are intentional: FastRTPS shm discovery.
+services:
+  voicehub-edge:
+    build: .
+    container_name: voicehub-edge
+    restart: unless-stopped
+    network_mode: host
+    ipc: host
+    env_file:
+      - ../.env
+    environment:
+      - ROS_DOMAIN_ID=55

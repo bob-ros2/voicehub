@@ -1,0 +1,31 @@
+name: voicehub
+
+# API layer with integrated ROS-TTS mode (default): runs on the host where
+# agent-q3tts listens (host network + ROS_DOMAIN_ID 55).
+# Bind defaults to 127.0.0.1 — for host operation set VOICEHUB_BIND=0.0.0.0, then
+# VOICEHUB_TOKEN is mandatory (and put TLS in front, e.g. nginx lowbob-api-gate).
+# Hub NOT on the TTS host? Then set VOICEHUB_ROS_TTS=0 and start
+# edge/docker-compose.yml on the TTS host.
+# Ports: network_mode host means a shared host stack — 8790 listens directly on
+# the host (see `ss -tlnp`); a ports: entry would have no effect here.
+# host network + ipc:host are needed by the internal ROS loop (multicast/shm
+# discovery toward agent-q3tts). A pure HTTP setup (VOICEHUB_ROS_TTS=0 + edge
+# on the TTS host) can instead use a bridge network with real mapping:
+#   network_mode: bridge
+#   ports: ["8790:8790"]   # then remove host network/ipc:host
+services:
+  voicehub:
+    build: .
+    container_name: voicehub
+    restart: unless-stopped
+    network_mode: host
+    ipc: host
+    env_file:
+      - ../.env
+    environment:
+      - ROS_DOMAIN_ID=55
+      - VOICEHUB_ROS_TTS=1
+      - TTS_TOPIC=/agent/llm_stream
+      - TTS_NODE_NS=/voicehub
+    volumes:
+      - ../docs:/docs:ro
