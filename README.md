@@ -31,6 +31,7 @@ flowchart LR
     vox -->|"POST /v1/stt (prompt callback)"| api
     api --> sr
     sr -->|"SSE /v1/stt/stream"| agent
+    q3 -.->|"audio_raw / spoken_text<br/>(optional output topics)"| out["other ROS consumers<br/>(recording, bridges, ...)"]
 ```
 
 ## Components
